@@ -16,7 +16,42 @@
   /*$conexion=$base->query("SELECT * FROM usuarios");
   $registros=$conexion->fetchAll(PDO::FETCH_OBJ);*/
 
-  $registros=$base->query("SELECT * FROM usuarios")->fetchAll(PDO::FETCH_OBJ);
+  //--------------- Paginacion -------------------------
+
+  $tam_pag=3;
+
+  if(isset($_GET["pagina"])){
+
+    if($_GET["pagina"]==1){
+
+      header("Location:index.php");
+
+    } else {
+
+      $pagina=$_GET["pagina"];
+
+    }
+
+  } else {
+
+    $pagina=1;
+
+  }
+
+  $empezar=($pagina-1)*$tam_pag;
+
+  $sql_total="SELECT * FROM usuarios";
+
+  $resultado=$base->prepare($sql_total);
+
+  $resultado->execute(array());
+  $num_filas=$resultado->rowCount();
+
+  $total_paginas=ceil($num_filas/$tam_pag);
+
+  //----------------------------------------------------
+
+  $registros=$base->query("SELECT * FROM usuarios LIMIT $empezar, $tam_pag")->fetchAll(PDO::FETCH_OBJ);
 
   if (isset($_POST["cr"])) {
     $nombre=$_POST["Nom"];
@@ -67,8 +102,23 @@
       <td><input type='text' name='Ape' size='10' class='centrado'></td>
       <td><input type='text' name=' Dir' size='10' class='centrado'></td>
       <td class='bot'><input type='submit' name='cr' id='cr' value='Insertar'></td></tr>
+      <tr>
+        <td>
+          <?php
+          //------------- Paginacion ----------------
+          
+            for($i=1; $i<=$total_paginas; $i++) {
+
+              echo "<a href='?pagina=" . $i . "'>" . $i . "</a>  ";
+
+            }
+          ?>
+
+        </td>
+      </tr>
   </table>
 </form>
+
 <p>&nbsp;</p>
 </body>
 </html>
